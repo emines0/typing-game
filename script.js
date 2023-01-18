@@ -8,29 +8,35 @@ const  settings = document.getElementById('settings');
 const  settingsForm = document.getElementById('settings-form');
 const  difficultySelect = document.getElementById('difficulty');
 
+const apiLang = 'en'
+const apiCount = 1000;
+const apiUrl = `https://random-word-api.herokuapp.com/word?number=${apiCount}&lang=${apiLang}`;
+
 // List of words for game
-const words = [
-  'sigh',
-  'tense',
-  'airplane',
-  'ball',
-  'pies',
-  'juice',
-  'warlike',
-  'bad',
-  'north',
-  'dependent',
-  'steer',
-  'silver',
-  'highfalutin',
-  'superficial',
-  'quince',
-  'eight',
-  'feeble',
-  'admit',
-  'drag',
-  'loving'
+let words = [
+  // 'sigh',
+  // 'tense',
+  // 'airplane',
+  // 'ball',
+  // 'pies',
+  // 'juice',
+  // 'warlike',
+  // 'bad',
+  // 'north',
+  // 'dependent',
+  // 'steer',
+  // 'silver',
+  // 'highfalutin',
+  // 'superficial',
+  // 'quince',
+  // 'eight',
+  // 'feeble',
+  // 'admit',
+  // 'drag',
+  // 'loving'
 ];
+
+
 
 // Init word
 let randomWord;
@@ -47,38 +53,32 @@ let difficulty = localStorage.getItem('difficulty') !== null ? localStorage.getI
 // Set difficulty select value
 difficultySelect.value = difficulty;
 
-
-// // Generate random word using random word API
-// async function fetchWords() {
-//   try {
-
-//     const response = await fetch('https://random-word-api.herokuapp.com/word?number=1000&lang=en')
-//     const data = await response.json();
-
-//     return randomWord = data[Math.floor(Math.random() * data.length)];
-
-//     console.log(randomWord);
-    
-//   } catch (error) {
-//     console.log("Error: " + error);
-//   }
-
-// }
-
 // Focus on text on start
 text.focus();
 
 // Start counting down
 const timeInterval = setInterval(updateTime, 1000)
 
-// Generate random word from array
-function getRandomWord() {
-  return words[Math.floor(Math.random() * words.length)];
+async function getDataFromApi() {
+  try {
+    const response = await fetch(apiUrl);
+    words = await response.json();
+    randomWord = words[Math.floor(Math.random() * words.length)];
+    
+    addWordToDOM(randomWord);
+
+  } catch (error) {
+    console.log(error);
+  }
 }
 
+// Generate random word from array
+// function getRandomWord(arr) {
+//   return words[Math.floor(Math.random() * words.length)];
+// }
+
 // Add word to DOM
-function addWordToDOM() {
-  randomWord = getRandomWord();
+function addWordToDOM(randomWord) {
   word.innerHTML = randomWord;
 }
 
@@ -89,7 +89,6 @@ function updateScore() {
 }
 
 // Update time
-
 function updateTime() {
   time--;
   timeEl.innerHTML = time + 's';
@@ -100,6 +99,8 @@ function updateTime() {
     gameOver();
   }
 }
+
+
 
 // Game over, show end screen
 
@@ -114,14 +115,16 @@ function gameOver() {
   
 }
 
-addWordToDOM();
+// On Load
+getDataFromApi();
+// addWordToDOM();
 
 // Event listeners
 // Typing
 text.addEventListener('input', e => {
   const insertedText = e.target.value;
     if(insertedText === randomWord) {
-      addWordToDOM();
+      getDataFromApi();
       updateScore();
 
       // Clear
